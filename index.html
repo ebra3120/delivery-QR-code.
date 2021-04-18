@@ -8,22 +8,26 @@
     <title class="title">Document</title>
 </head>
 <body>
-    <h1 class="title"></h1>
-    <div id="qrcode"></div>
+    <h1>Show this QR code when you pick up your order.</h1>
+    <div id="urls"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pouchdb/7.2.2/pouchdb.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
     <script type="text/javascript">
-        const oParams = new URLSearchParams(window.location.search);
-        const sMd5 = oParams.get("q");
-        const db = new PouchDB('urls');
-        db.get(sMd5).then((doc) =>{
-            sUrl = doc.url;
-            $(".title").html(sUrl);
-            new QRCode($("#qrcode")[0], sUrl);
-        }).catch((err) => {
+    const sUrl1 = "https://payment-ebra.herokuapp.com/";
+    const oUrl1 = {_id: md5(sUrl1), url: sUrl1};
+    const aUrls = [oUrl1];
+    const db = new PouchDB('urls');
+    for(let n = 0; n < aUrls.length; n = n + 1){
+        const oLink = aUrls[n];
+        const sBase = "showQrCode.html";
+        $("div#urls").append(`<p><a href="${sBase}?q=${oLink._id}">${oLink.url}</a></p>`);
+        db.put(oLink).then((res)=>{
+            console.log("inserted");
+        }).catch((err) =>{
             console.log(`err inserting ${err.toString()}`);
         });
+    }
     </script>
 </body>
